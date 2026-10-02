@@ -1,54 +1,39 @@
-# 🎵 Trivia Musical (Django)
+# Conecta UTC
 
-Juego de trivia que reproduce fragmentos de audio, ofrece opciones de respuesta múltiple y lleva el puntaje en la sesión.
+Bolsa de trabajo universitaria para estudiantes y egresados de la Universidad Tecnológica de Coahuila (UTC), desarrollada con Django.
 
-## Ejecutar en local (VS Code, terminal integrada)
+## Problemática
 
-```bash
-python -m venv venv
-venv\Scripts\activate          # Windows   (Mac/Linux: source venv/bin/activate)
-pip install -r requirements.txt
-python manage.py migrate
-python manage.py poblar_trivia  # carga las preguntas de ejemplo
-python manage.py runserver
-```
+Las vacantes dirigidas a los estudiantes se comparten principalmente por correo institucional, donde se pierden, no se pueden buscar ni filtrar y no permiten dar seguimiento a las postulaciones.
 
-Abre http://127.0.0.1:8000/ (redirige a `/start/`).
-Panel de administración: `python manage.py createsuperuser` y entra a `/admin/`.
+## Solución
 
-## Rutas
+Una plataforma web donde los estudiantes consultan, buscan, filtran, guardan y se postulan a vacantes; las empresas publican y administran ofertas y candidatos; y el administrador UTC supervisa el sistema.
 
-| Ruta | Vista | Descripción |
-|---|---|---|
-| `/start/` | `start_game` | Inicio; reinicia `score` y `answered_question_ids` |
-| `/play/` | `play_trivia` | Pregunta aleatoria aún no respondida |
-| `/submit/` | `submit_answer` | Recibe la respuesta por POST |
-| `/game-over/` | `game_over` | Resultado final |
+## Estructura de aplicaciones
 
-## Audios
-
-`generate_sample_audio.py` crea 4 melodías de dominio público (WAV) en `media/music_snippets/`.
-Para usar tus propios `.mp3`, cópialos a esa carpeta y edita la lista `PREGUNTAS` en
-`trivia_game/management/commands/poblar_trivia.py` (o súbelos desde `/admin/`).
-
-## Pruebas
-
-```bash
-python manage.py test
-```
-
-## Despliegue en Render
-
-| Parámetro | Valor |
+| App | Responsabilidad |
 |---|---|
-| Build Command | `pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && python manage.py poblar_trivia` |
-| Start Command | `gunicorn music_trivia_project.wsgi:application` |
-| `SECRET_KEY` | cadena aleatoria larga |
-| `DEBUG` | `False` |
+| `config` | Configuración del proyecto |
+| `core` | Inicio y estadísticas |
+| `cuentas` | Usuario personalizado y roles |
+| `catalogo` | Carreras y habilidades |
+| `estudiantes` | Perfil del estudiante y CV |
+| `empresas` | Perfil de empresa |
+| `vacantes` | Vacantes, filtros y favoritos |
+| `postulaciones` | Postulaciones y sus estados |
 
-Render define `RENDER_EXTERNAL_HOSTNAME` automáticamente; `settings.py` lo agrega a `ALLOWED_HOSTS`.
-El disco gratuito es efímero: por eso el build vuelve a migrar y poblar la base.
+## Ejecutar en local (Windows)
 
-## Flujo de ramas sugerido
+    python -m venv venv
+    venv\Scripts\Activate.ps1
+    pip install -r requirements.txt
+    python manage.py migrate
+    python manage.py createsuperuser
+    python manage.py runserver
 
-`main` ← `release/*` ← `develop` ← `feature/*` (ver documento PDF del caso práctico).
+Copia `.env.example` a `.env` para definir variables de entorno. Nunca subas `.env` al repositorio.
+
+## Flujo de trabajo
+
+GitHub Flow: rama `main` estable y ramas `feature/*` integradas mediante pull requests.
