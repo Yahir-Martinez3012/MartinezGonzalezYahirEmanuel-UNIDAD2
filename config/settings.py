@@ -27,6 +27,13 @@ SECRET_KEY = os.environ.get('SECRET_KEY', 'clave-solo-para-desarrollo-local')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+RENDER_HOST = os.environ.get('RENDER_EXTERNAL_HOSTNAME')   # Render lo define automáticamente
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
+    CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_HOST}']
+
+if not DEBUG and SECRET_KEY.startswith('clave-solo-para-desarrollo'):
+    raise RuntimeError('Define la variable de entorno SECRET_KEY antes de ejecutar con DEBUG=False.')
 
 
 # Application definition
@@ -124,6 +131,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 
 # Email
@@ -139,3 +147,21 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = 'cuentas.Usuario'
+
+# Los mensajes de error de Django se muestran con el estilo "danger" de Bootstrap
+from django.contrib.messages import constants as message_constants  # noqa: E402
+MESSAGE_TAGS = {message_constants.ERROR: 'danger'}
+
+# Autenticación
+LOGIN_URL = 'cuentas:login'
+LOGIN_REDIRECT_URL = 'inicio'
+LOGOUT_REDIRECT_URL = 'inicio'
+
+# Seguridad en producción (DEBUG=False)
+if not DEBUG:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')   # sirve los archivos estáticos
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 3600
